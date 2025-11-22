@@ -431,7 +431,8 @@
 
 <script>
 /************** Configuración del Hall de la Fama **************/
-const APP_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyNC21razAyiqQEPMgxmM25hp1kzuD_zxJgGdQnoM25lcJrwv3YhTxMCn572i-K4gNc1w/exec";
+// URL del Google Apps Script proporcionada por el usuario
+const APP_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz5Mr_QVBzObQea0j0zKP5x9Zz2JopQysUWB5cALHz72uzVx21-cihTzu15_dh3joKOfw/exec";
 const SPREADSHEET_NAME = "Resultados_UD2_3";
 const SHEET_NAME = "Organos_de_los_aparatos";
 
@@ -558,7 +559,12 @@ async function loadHallOfFame() {
     hallOfFameContent.innerHTML = '<div class="hall-of-fame-loading">Cargando...</div>';
     
     // Realizar petición GET al Apps Script
-    const response = await fetch(`${APP_SCRIPT_URL}?sheet=${SHEET_NAME}`);
+    const response = await fetch(`${APP_SCRIPT_URL}?method=GET&sheet=${SHEET_NAME}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
     
     if (!response.ok) {
       throw new Error(`Error en la respuesta: ${response.status}`);
@@ -624,7 +630,7 @@ async function loadHallOfFame() {
  */
 async function submitScore(name, surname, time, score) {
   try {
-    const response = await fetch(APP_SCRIPT_URL, {
+    const response = await fetch(`${APP_SCRIPT_URL}?method=POST`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

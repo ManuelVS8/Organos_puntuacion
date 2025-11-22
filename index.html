@@ -432,7 +432,7 @@
 <script>
 /************** Configuración del Hall de la Fama **************/
 // URL del Google Apps Script proporcionada por el usuario
-const APP_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz5Mr_QVBzObQea0j0zKP5x9Zz2JopQysUWB5cALHz72uzVx21-cihTzu15_dh3joKOfw/exec";
+const APP_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzwPDxbGmyC9WuNjaLuDgDSgrt74hMkyYTcAxyLoJ6qlI-TBmsV6W1ml5AXKC3TyMA8CQ/exec";
 const SPREADSHEET_NAME = "Resultados_UD2_3";
 const SHEET_NAME = "Organos_de_los_aparatos";
 
@@ -559,7 +559,7 @@ async function loadHallOfFame() {
     hallOfFameContent.innerHTML = '<div class="hall-of-fame-loading">Cargando...</div>';
     
     // Realizar petición GET al Apps Script
-    const response = await fetch(`${APP_SCRIPT_URL}?method=GET&sheet=${SHEET_NAME}`, {
+    const response = await fetch(`${APP_SCRIPT_URL}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -573,10 +573,8 @@ async function loadHallOfFame() {
     const data = await response.json();
     
     if (data.success && data.data && data.data.length > 0) {
-      // Ordenar por tiempo ascendente y tomar los 10 primeros
-      const topScores = data.data
-        .sort((a, b) => parseFloat(a[3]) - parseFloat(b[3])) // Columna 3 = Tiempo en segundos
-        .slice(0, 10);
+      // Los datos ya vienen ordenados y limitados a 10 desde el script
+      const topScores = data.data;
       
       // Construir tabla HTML
       let tableHTML = `
@@ -593,14 +591,14 @@ async function loadHallOfFame() {
       `;
       
       topScores.forEach((row, index) => {
-        const timeInSeconds = parseFloat(row[3]);
+        const timeInSeconds = parseFloat(row.time);
         const formattedTime = formatMixedTime(timeInSeconds);
         
         tableHTML += `
           <tr>
             <td>${index + 1}</td>
-            <td>${row[1]}</td>
-            <td>${row[2]}</td>
+            <td>${row.name}</td>
+            <td>${row.surname}</td>
             <td>${formattedTime}</td>
           </tr>
         `;
@@ -630,7 +628,7 @@ async function loadHallOfFame() {
  */
 async function submitScore(name, surname, time, score) {
   try {
-    const response = await fetch(`${APP_SCRIPT_URL}?method=POST`, {
+    const response = await fetch(`${APP_SCRIPT_URL}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -639,8 +637,7 @@ async function submitScore(name, surname, time, score) {
         name: name,
         surname: surname,
         time: time,
-        score: score,
-        game: SHEET_NAME
+        score: score
       })
     });
     

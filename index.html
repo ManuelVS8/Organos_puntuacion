@@ -230,10 +230,8 @@
 
 <script>
 // --- CONFIGURACIÓN ---
-// =========================================================================
-// PEGA AQUI LA NUEVA URL QUE TE HA DADO GOOGLE APPS SCRIPT AL IMPLEMENTAR:
+// URL ya corregida con tu dirección correcta
 const APP_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzwPDxbGmyC9WuNjaLuDgDSgrt74hMkyYTcAxyLoJ6qlI-TBmsV6W1ml5AXKC3TyMA8CQ/exec";
-// =========================================================================
 
 // Datos del juego
 const ORGANS_DATA = [
@@ -276,8 +274,9 @@ const el = (id) => document.getElementById(id);
 async function loadHallOfFame() {
   const container = el('hallOfFameContent');
   
-  if (APP_SCRIPT_URL.includes("https://script.google.com/macros/s/AKfycbzwPDxbGmyC9WuNjaLuDgDSgrt74hMkyYTcAxyLoJ6qlI-TBmsV6W1ml5AXKC3TyMA8CQ/exec")) {
-    container.innerHTML = '<div class="hall-of-fame-error">Falta configurar el Script URL</div>';
+  // Verificación de seguridad
+  if (APP_SCRIPT_URL.includes("PEGAR_AQUI")) {
+    container.innerHTML = '<div class="hall-of-fame-error">Falta configurar el Script URL (Código de prueba detectado).</div>';
     return;
   }
 
@@ -297,7 +296,8 @@ async function loadHallOfFame() {
     }
   } catch (e) {
     console.error("Error cargando ranking:", e);
-    container.innerHTML = '<div class="hall-of-fame-error">No se pudo cargar el ranking.</div>';
+    // Si falla, probablemente es porque el Script no tiene permisos de "Anyone"
+    container.innerHTML = '<div class="hall-of-fame-error">No se pudo cargar. Verifica permisos del Script.</div>';
   }
 }
 
@@ -308,7 +308,7 @@ async function submitScore(name, surname, time, score) {
   try {
     const payload = { name, surname, time, score };
     
-    // Usamos no-cors o cors dependiendo del setup, pero 'POST' con body stringified es lo más fiable para GAS
+    // Envío de datos con POST
     const res = await fetch(APP_SCRIPT_URL, {
       method: 'POST',
       body: JSON.stringify(payload)
@@ -320,11 +320,11 @@ async function submitScore(name, surname, time, score) {
       alert("¡Puntuación guardada correctamente!");
       loadHallOfFame(); // Recargar tabla
     } else {
-      throw new Error(json.error || "Error desconocido");
+      throw new Error(json.error || "Error desconocido del servidor");
     }
   } catch (e) {
     console.error(e);
-    alert("Hubo un error al guardar: " + e.message);
+    alert("Hubo un error al guardar. Verifica que el Script esté publicado como 'Cualquier persona'.\nDetalle: " + e.message);
   } finally {
     loading.style.display = 'none';
     el('submitModal').style.display = 'none';
@@ -495,7 +495,8 @@ window.addEventListener('resize', placeMarkers);
 
 // INIT
 el('loadingIndicator').style.display = 'none';
-loadHallOfFame();
+// Retrasamos un poco la carga inicial para asegurar que el HTML está listo
+setTimeout(loadHallOfFame, 100);
 
 // Confetti simplificado
 function spawnConfetti(){
